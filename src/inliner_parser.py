@@ -7,7 +7,7 @@ def split_nodes_delimiter(old_nodes,delimiter,text_type):
         if node.text_type != TextType.TEXT:
             new_nodes.append(node)
             continue
-        print (node.text)
+
         parts =node.text.split(delimiter)
           # If odd number of parts → unmatched delimiter
         if len(parts) % 2 == 0:
