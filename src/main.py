@@ -27,6 +27,7 @@ def populate_public_dir(fromPath,toCopyPath):
               os.mkdir(toCopyPath + "/" + item)
               populate_public_dir(fromPath + "/" + item, toCopyPath + "/" + item)
 def generate_page(fromPath, templatePath, destPath):
+    
     print(f"Generating page from {fromPath} using template {templatePath} to {destPath}")
     markdown_file= open(fromPath, 'r')
     markdown = markdown_file.read()
@@ -35,12 +36,23 @@ def generate_page(fromPath, templatePath, destPath):
     template = template_file.read()
     template_file.close()
     html= markdown_to_html_node(markdown).to_html()
-    print (f"'HTML generated: {html}'")	
+
     title = extract_title(markdown)
+ 
+    html_output = (
+        template
+        .replace("{{ Title }}", title)
+        .replace("{{ Content }}", html)
+    )
+# write the output to the destination path
+    destPath= Path(destPath)
+    if not destPath.parent.exists():
+        os.makedirs(destPath.parent)
+    destPath.write_text(html_output, encoding='utf-8')
 def main():
     new_node = TextNode("This is some anchor text", TextType.LINK, "https://www.boot.dev")
 
     reset_public_dir("./public")
     populate_public_dir("./static", "./public")
-
+    generate_page("./content/index.md", "./template.html", "./public/index.html")
 main()
