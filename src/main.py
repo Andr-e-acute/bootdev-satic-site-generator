@@ -1,10 +1,13 @@
 from pathlib import Path
 import os
+import sys
 import shutil
 from markdown_utils import extract_title
 from html_converter import markdown_to_html_node
 from htmlnode import  HTMLNode
 from textnode import TextNode, TextType
+basepath = sys.argv[1] if len(sys.argv) > 1 else "/"
+print(f"Base path is set to: {basepath}")
 # helpers
 def reset_public_dir(path):
     public_dir = Path(path)
@@ -43,6 +46,8 @@ def generate_page(fromPath, templatePath, destPath):
         template
         .replace("{{ Title }}", title)
         .replace("{{ Content }}", html)
+        .replace("href=\"/", f"href=\"{basepath}")
+        .replace("src=\"/", f"src=\"{basepath}")
     )
 # write the output to the destination path
     destPath= Path(destPath)
@@ -63,10 +68,8 @@ def generate_pages_recursively(dir_path_content,template_path,dest_dir_path):
                 os.makedirs(sub_dir_dest)
             generate_pages_recursively(sub_dir_content, template_path, sub_dir_dest)
 def main():
-    new_node = TextNode("This is some anchor text", TextType.LINK, "https://www.boot.dev")
+    reset_public_dir("./docs")
+    populate_public_dir("./static", "./docs")
+    generate_pages_recursively(f"./content", f"./template.html", f"./docs")
 
-    reset_public_dir("./public")
-    populate_public_dir("./static", "./public")
-    generate_pages_recursively("./content", "./template.html", "./public")
-  
 main()
