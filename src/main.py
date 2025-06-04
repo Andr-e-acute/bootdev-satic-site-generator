@@ -49,10 +49,24 @@ def generate_page(fromPath, templatePath, destPath):
     if not destPath.parent.exists():
         os.makedirs(destPath.parent)
     destPath.write_text(html_output, encoding='utf-8')
+def generate_pages_recursively(dir_path_content,template_path,dest_dir_path):
+    for item in os.listdir(dir_path_content):
+        if item.endswith(".md"):
+            content_path = os.path.join(dir_path_content, item)
+            relative_path = os.path.relpath(content_path, dir_path_content)
+            dest_path = os.path.join(dest_dir_path, relative_path.replace(".md", ".html"))
+            generate_page(content_path, template_path, dest_path)
+        elif os.path.isdir(os.path.join(dir_path_content, item)):
+            sub_dir_content = os.path.join(dir_path_content, item)
+            sub_dir_dest = os.path.join(dest_dir_path, item)
+            if not os.path.exists(sub_dir_dest):
+                os.makedirs(sub_dir_dest)
+            generate_pages_recursively(sub_dir_content, template_path, sub_dir_dest)
 def main():
     new_node = TextNode("This is some anchor text", TextType.LINK, "https://www.boot.dev")
 
     reset_public_dir("./public")
     populate_public_dir("./static", "./public")
-    generate_page("./content/index.md", "./template.html", "./public/index.html")
+    generate_pages_recursively("./content", "./template.html", "./public")
+  
 main()
